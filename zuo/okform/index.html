@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js.js"></script>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    .box{
+        width:1000px;
+        height:auto;
+        margin: 0 auto;
+        border: 1px solid black;
+        /*text-align: center;*/
+    }
+    .box h1{
+        text-align: center;
+    }
+
+    .box table td{
+        width:200px;
+        border: 1px solid black;
+        line-height: 30px;
+        text-align: center;
+    }
+
+    .del{
+        width:200px;
+        height:30px;
+        background: red;
+        text-align: center;
+        line-height: 30px;
+        font-size: 20px;
+        border-radius: 10px;
+    }
+
+    .btn{
+        width:200px;
+        height:30px;
+        background:red;
+        text-align: center;
+        color: white;
+        line-height: 30px;
+        margin: 0 auto;
+        font-size: 20px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+</style>
+<body>
+<div class="box">
+    <table>
+        <h1>学籍管理系统</h1>
+        <tr>
+            <td>学号</td>
+            <td>姓名</td>
+            <td>年龄</td>
+            <td>性别</td>
+            <td>功能</td>
+        </tr>
+
+    </table>
+
+    <div class="btn">添加信息</div>
+
+</div>
+</body>
+</html>
+<script>
+
+    //    let obj = {id:3}
+    //    let database=[{nub:'20170301',name:'张三',age:'20',sex:'男'},
+    //        {nub:'20170302',name:'李四',age:'26',sex:'男'},
+    //        {nub:'20170303',name:'王五',age:'20',sex:'男'},
+    //        ];
+    //    localStorage.database=JSON.stringify(database);
+    //    localStorage.index=JSON.stringify(obj);
+
+    let database = [];
+    let index= 0;
+    if(database){
+        database = JSON.parse(localStorage.database);
+        index = JSON.parse(localStorage.index).id;
+    };
+    let tbody = $('tbody');
+    let btn = $('.btn');
+    database.forEach(function (value) {
+        let tr = document.createElement('tr');
+        tr.id=value.id;
+        tr.innerHTML=`
+              <td class="nub">${value.nub}</td>
+              <td class="name">${value.name}</td>
+              <td class="age">${value.age}</td>
+              <td class="sex">${value.sex}</td>
+              <td><div class="del">删除</div></td>
+              `
+        tbody.appendChild(tr);
+    });
+
+    //    添加
+
+    btn.onclick=function () {
+//        文档更新
+        let tr = document.createElement('tr');
+//          更新本地存储数据，更新下标
+        index++;
+        localStorage.index=JSON.stringify({id:index});
+        tr.id=index;
+//          添加文档结构
+        tr.innerHTML=`
+           <td class="nub"></td>
+           <td class="name"></td>
+           <td class="age"></td>
+           <td class="sex"></td>
+           <td><div class="del">删除</div></td>
+           `
+//          更新数据库创建一个空对象也就是一行数据
+        let newxinxi = {id:index,nub:'',name:'',age:'',sex:''};
+//          更新数据库和存储数据
+        database.push(newxinxi);
+        localStorage.database=JSON.stringify(database);
+//          追加到页面
+        tbody.appendChild(tr);
+    }
+
+    tbody.onclick=function (e) {
+        let way=e.target||e.srcElement;
+        if(way.className=='del'){
+//            获取tr
+            let par = way.parentNode.parentNode;
+            let delindex = par.id;
+            let delid = database.findIndex(function (value) {
+                return value.id==delindex;
+            });
+            database.splice(delid,1);
+            localStorage.database=JSON.stringify(database);
+            tbody.removeChild(par);
+        }else if(way.nodeName=='TD'&&way.children.length==0){
+            let input = document.createElement('input');
+            input.type='text';
+            let val = way.innerHTML;
+            way.innerHTML='';
+            input.value=val;
+            way.appendChild(input);
+            input.focus();
+            let id = way.parentNode.id;
+            let classname = way.className;
+//            失去焦点时
+            input.onblur=function(){
+                let val = this.value;
+                let xindex = database.findIndex(function (value) {
+                    return value.id==id;
+                });
+                database[xindex][classname]=val;
+                localStorage.database=JSON.stringify(database);
+                way.removeChild(input);
+                way.innerHTML=val;
+            }
+
+        }
+    }
+
+
+</script>
